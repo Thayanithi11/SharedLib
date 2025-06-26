@@ -7,7 +7,7 @@ import SignupPage from './components/SignupPage'
 import DashboardLayout from './components/DashboardLayout'
 import Feed from './components/Feed'
 import ChatsPage from './components/ChatsPage'
-import SearchPage from './components/SearchPage'
+import AllData from './components/AllData'
 
 function App() {
   const [isLoggedIn,setIsLoggedIn]=useState(false);
@@ -43,6 +43,36 @@ function App() {
                 setIsLoggedIn={setIsLoggedIn}
               >
                 <Feed peopleNearYou={peopleNearYou} bookReviews={bookReviews}/>
+              </DashboardLayout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/home/people"
+          element={
+            <PrivateRoute isLoggedIn={isLoggedIn}>
+              <DashboardLayout
+                collapsed={collapsed}
+                setCollapsed={setCollapsed}
+                setIsLoggedIn={setIsLoggedIn}
+              >
+                <AllData Data={peopleNearYou}/>
+              </DashboardLayout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/home/reviews"
+          element={
+            <PrivateRoute isLoggedIn={isLoggedIn}>
+              <DashboardLayout
+                collapsed={collapsed}
+                setCollapsed={setCollapsed}
+                setIsLoggedIn={setIsLoggedIn}
+              >
+               <AllData Data={bookReviews}/>
               </DashboardLayout>
             </PrivateRoute>
           }
