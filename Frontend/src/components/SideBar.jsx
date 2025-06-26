@@ -1,7 +1,8 @@
-import { LogOut, Home, Search, MessageSquare } from "lucide-react";
+import { LogOut, Home,MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Sidebar({collapsed, setCollapsed,setIsLoggedIn}) {
+  const navigate=useNavigate();
   return (
     <div
       className={`flex flex-col justify-between h-screen bg-white border-r transition-all duration-300 ${
@@ -32,31 +33,22 @@ export default function Sidebar({collapsed, setCollapsed,setIsLoggedIn}) {
 
       {/* Middle: Navigation Links */}
       <div className="flex flex-col space-y-4 px-2">
-        <SidebarItem icon={<Home size={20} />} label="Home" collapsed={collapsed} />
-        <SidebarItem icon={<Search size={20} />} label="Search" collapsed={collapsed} />
-        <SidebarItem icon={<MessageSquare size={20} />} label="Chats" collapsed={collapsed} />
+        <SidebarItem icon={<Home size={20} />} label="Home" collapsed={collapsed} onClick={() => navigate("/home")} />
+        <SidebarItem icon={<MessageSquare size={20} />} label="Chats" collapsed={collapsed} onClick={() => navigate("/chats")}/>
       </div>
 
       {/* Bottom: Logout */}
       <div className="flex flex-col items-center mb-4">
-        <SidebarItem icon={<LogOut size={20}/>} label="Logout" collapsed={collapsed} setIsLoggedIn={setIsLoggedIn}/>
+        <SidebarItem icon={<LogOut size={20}/>} label="Logout" collapsed={collapsed} onClick={() =>{setIsLoggedIn(false); navigate("/")}}/>
       </div>
     </div>
   );
 }
 
-function SidebarItem({ icon, label, collapsed,setIsLoggedIn}) {
-  
-  const navigate=useNavigate();
-  const handleLogout=(e)=>{
-    e.preventDefault();
-    setIsLoggedIn(false);
-    navigate('/');
-  }
-
+function SidebarItem({ icon, label, collapsed,onClick}) {
   return (
     <div
-      className="flex items-center space-x-3 text-sm font-medium text-gray-700 p-2 rounded hover:bg-gray-100 group" onClick={handleLogout}
+      className="flex items-center space-x-3 text-sm font-medium text-gray-700 p-2 rounded hover:bg-gray-100 group" onClick={onClick}
     >
       <div className="text-gray-700">{icon}</div>
       {!collapsed && <span className="whitespace-nowrap">{label}</span>}

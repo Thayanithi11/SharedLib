@@ -30,7 +30,7 @@ export default function SignupPage() {
         className="w-full max-w-sm p-8 border border-black rounded-xl shadow-lg"
       >
         <h1 className="text-3xl font-semibold text-center text-black mb-2">
-          Welcome to ShareLib
+          Welcome to SharedLib
         </h1>
         <div className="flex w-full justify-center mb-4">
           <img src="/SharedLibLogo.png" className="h-8 w-8" alt="ShareLib Logo" />
