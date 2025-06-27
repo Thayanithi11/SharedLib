@@ -3,6 +3,11 @@ import { useNavigate } from "react-router-dom";
 
 export default function Sidebar({collapsed, setCollapsed,setIsLoggedIn}) {
   const navigate=useNavigate();
+  const handleLogout=()=>{
+      setIsLoggedIn(false); 
+        navigate("/");
+  }
+
   return (
     <div
       className={`flex flex-col justify-between h-screen bg-white border-r transition-all duration-300 ${
@@ -41,7 +46,7 @@ export default function Sidebar({collapsed, setCollapsed,setIsLoggedIn}) {
 
       
       <div className="flex flex-col items-center mb-4">
-        <SidebarItem icon={<LogOut size={20}/>} label="Logout" collapsed={collapsed} onClick={() =>{setIsLoggedIn(false); navigate("/")}}/>
+        <SidebarItem icon={<LogOut size={20}/>} label="Logout" collapsed={collapsed} onClick={handleLogout}/>
       </div>
     </div>
   );

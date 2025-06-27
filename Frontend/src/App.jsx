@@ -10,6 +10,7 @@ import ChatsPage from './components/ChatsPage'
 import AllData from './components/AllData'
 import UserProfile from "./components/UserProfile"
 import ReviewPage from "./components/ReviewPage"
+import LandingPage from "./components/LandingPage"
 
 function App() {
   const [isLoggedIn,setIsLoggedIn]=useState(false);
@@ -31,7 +32,8 @@ function App() {
     <div>
        <Router>
       <Routes>
-        <Route path="/" element={<LoginPage setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path="/" element={<LandingPage/>}/>
+        <Route path="/login" element={<LoginPage setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/signup" element={<SignupPage />} />
 
         

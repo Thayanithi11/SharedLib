@@ -43,7 +43,7 @@ export default function UserProfile() {
 
       {/* Tabs */}
       <div className="flex justify-center mt-10 space-x-6 border-b w-full max-w-md">
-        {["Owned", "Reading", "Read"].map((tab) => (
+        {["Owned", "Reading", "Read","Articles"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -66,12 +66,14 @@ export default function UserProfile() {
               <img src="/book1.png" className="w-48 h-56 bg-gray-200 rounded shadow-sm mb-2" />
               <p className="text-sm text-center mb-2">{book.title}</p>
               <div className="flex justify-center items-center gap-1">
-                    <button onClick={() => handleRClick(book.title)} className={`${requestedBooks[book.title]?"px-1 py-1 text-sm font-light  bg-green-100 text-gray-500 rounded-md ml-8":
-                      "px-2  py-1 ml-8 text-sm bg-indigo-100 text-blue-700 rounded-xl hover:bg-indigo-400 transition"}`}>
-                       {requestedBooks[book.title] ? "Requested" : "Request to Borrow"}
+                   { 
+                    !requestedBooks[book.title] && 
+                    <button onClick={() => handleRClick(book.title)} className="px-2  py-1 ml-8 text-sm bg-indigo-100 text-blue-700 rounded-xl hover:bg-indigo-400 transition">
+                       Request to borrow
                     </button>
+                   }
                      {
-                       requestedBooks[book.title] && <button className="text-red-800 bg-red-200 rounded-md px-1 py-1 text-sm font-medium
+                       requestedBooks[book.title] && <button className="text-red-800 bg-red-200 rounded-md px-1 py-1 ml-8 text-sm font-medium
                        hover:border-[1px] hover:bg-red-300" onClick={() => handleCclick(book.title)}>
                        Cancel request</button>
                      }
@@ -93,6 +95,17 @@ export default function UserProfile() {
       )}
 
       {activeTab === "Read" && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mt-10">
+          {books.map((book, idx) => (
+            <div key={idx} className="flex flex-col items-center">
+              <img src="/book1.png" className="w-48 h-56 bg-gray-200 rounded shadow-sm mb-2" />
+              <p className="text-sm text-center mb-2">{book.title}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {activeTab === "Articles" && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mt-10">
           {books.map((book, idx) => (
             <div key={idx} className="flex flex-col items-center">
