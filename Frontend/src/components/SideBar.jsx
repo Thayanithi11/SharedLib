@@ -1,4 +1,4 @@
-import { LogOut, Home,MessageSquare } from "lucide-react";
+import { LogOut, Home,MessageSquare,Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Sidebar({collapsed, setCollapsed,setIsLoggedIn}) {
@@ -9,11 +9,12 @@ export default function Sidebar({collapsed, setCollapsed,setIsLoggedIn}) {
         collapsed ? "w-16" : "w-64"
       }`}
     >
-      {/* Top: User Info + Toggle */}
+      
       <div className="flex flex-col items-center p-4">
         <img
           src="useravatar.png"
           alt="User Avatar"
+          onClick={() => navigate("/home/userprofile")}
           className={`${collapsed?"w-8 h-8":"w-12 h-12"}rounded-full object-cover mb-2`}
         />
         {!collapsed && (
@@ -31,13 +32,14 @@ export default function Sidebar({collapsed, setCollapsed,setIsLoggedIn}) {
         </button>
       </div>
 
-      {/* Middle: Navigation Links */}
-      <div className="flex flex-col space-y-4 px-2">
+      
+      <div className="flex flex-col items-center space-y-4 px-2">
         <SidebarItem icon={<Home size={20} />} label="Home" collapsed={collapsed} onClick={() => navigate("/home")} />
         <SidebarItem icon={<MessageSquare size={20} />} label="Chats" collapsed={collapsed} onClick={() => navigate("/chats")}/>
+        <SidebarItem icon={<Plus size={20}/>} label="Write a review" collapsed={collapsed} onClick={() => navigate("/userreview")}/>
       </div>
 
-      {/* Bottom: Logout */}
+      
       <div className="flex flex-col items-center mb-4">
         <SidebarItem icon={<LogOut size={20}/>} label="Logout" collapsed={collapsed} onClick={() =>{setIsLoggedIn(false); navigate("/")}}/>
       </div>

@@ -9,9 +9,9 @@ export default function TopBar() {
   const peopleResults = ["Thayanithi", "Arun Kumar", "Divya R"];
 
   const handleFocus = () => setShowResults(true);
-  const handleBlur = () => setTimeout(() => setShowResults(false), 200); // small delay for click access
+  const handleBlur = () => setTimeout(() => setShowResults(false), 200); 
 
-  // Filter only if something is typed
+ 
   const filteredBooks = searchQuery
     ? bookResults.filter(book =>
         book.toLowerCase().includes(searchQuery.toLowerCase())
@@ -29,7 +29,6 @@ export default function TopBar() {
       <div className="h-12 bg-white border-b flex items-center justify-between px-6 relative">
         <span className="font-bold text-lg text-black">SharedLib</span>
 
-        {/* Search Box */}
         <div className="relative w-1/2">
           <div className="flex items-center bg-gray-100 px-3 py-1.5 rounded-full">
             <Search className="w-4 h-4 text-gray-500 mr-2" />
@@ -39,15 +38,15 @@ export default function TopBar() {
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={handleFocus}
               onBlur={handleBlur}
-              placeholder="Search for books..."
+              placeholder="Search for books/people"
               className="bg-transparent outline-none w-full text-sm placeholder:text-gray-500"
             />
           </div>
 
-          {/* Search Results */}
+         
           {showResults && searchQuery && (filteredBooks.length > 0 || filteredPeople.length > 0) && (
             <div className="absolute top-full mt-2 left-0 w-full bg-white border shadow-lg rounded-lg p-4 text-sm space-y-4 max-h-60 overflow-y-auto">
-              {/* Books Section */}
+              
               {filteredBooks.length > 0 && (
                 <div>
                   <h3 className="font-semibold text-gray-700 mb-2">Books</h3>
@@ -59,7 +58,7 @@ export default function TopBar() {
                 </div>
               )}
 
-              {/* People Section */}
+           
               {filteredPeople.length > 0 && (
                 <div>
                   <h3 className="font-semibold text-gray-700 mt-2 mb-2">People</h3>
@@ -74,7 +73,7 @@ export default function TopBar() {
           )}
         </div>
 
-        {/* Avatar */}
+       
         <img src="SharedLibLogo.png" className="w-8 h-8 rounded-full" />
       </div>
     </div>

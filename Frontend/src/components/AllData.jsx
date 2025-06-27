@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
-export default function AllData ({ Data }){
+export default function AllData ({ Data,heading }){
   const navigate = useNavigate();
 
   return (
@@ -13,7 +13,7 @@ export default function AllData ({ Data }){
       <ArrowLeft className="w-5 h-5" />
     </button>
 
-      <h2 className="text-2xl font-semibold mb-6">All Nearby People</h2>
+      <h2 className="text-2xl font-semibold mb-6">{heading}</h2>
       <div className="space-y-4">
         {Data.map((item, index) => (
           <div key={index} className="flex items-center gap-4 bg-white p-3 shadow rounded">

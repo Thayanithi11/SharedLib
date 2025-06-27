@@ -1,6 +1,6 @@
 import './index.css'
 import { BrowserRouter as Router,Routes,Route} from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import PrivateRoute from './components/PrivateRoute';
 import LoginPage from './components/LoginPage'
 import SignupPage from './components/SignupPage'
@@ -8,6 +8,8 @@ import DashboardLayout from './components/DashboardLayout'
 import Feed from './components/Feed'
 import ChatsPage from './components/ChatsPage'
 import AllData from './components/AllData'
+import UserProfile from "./components/UserProfile"
+import ReviewPage from "./components/ReviewPage"
 
 function App() {
   const [isLoggedIn,setIsLoggedIn]=useState(false);
@@ -16,13 +18,13 @@ function App() {
    const peopleNearYou = [
     { title: "John Doe", subtitle: "5km away", image: "/useravatar.png" },
     { title: "Jane Smith", subtitle: "2km away", image: "/useravatar.png" },
-   // more profiles...
+  
   ];
 
    const bookReviews = [
     { title: "The Secret Garden ", subtitle: "Frances Hodgson Burnett ", image: "/book1.png" },
     { title: "The Great Gatsby", subtitle: "F. Scott Fitzgerald", image: "/book1.png" },
-    // more books...
+  
   ];
 
   return (
@@ -32,7 +34,7 @@ function App() {
         <Route path="/" element={<LoginPage setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/signup" element={<SignupPage />} />
 
-        {/* Protected Routes with persistent layout */}
+        
         <Route
           path="/home"
           element={
@@ -57,7 +59,7 @@ function App() {
                 setCollapsed={setCollapsed}
                 setIsLoggedIn={setIsLoggedIn}
               >
-                <AllData Data={peopleNearYou}/>
+                <AllData Data={peopleNearYou} heading={"People near you"}/>
               </DashboardLayout>
             </PrivateRoute>
           }
@@ -72,7 +74,22 @@ function App() {
                 setCollapsed={setCollapsed}
                 setIsLoggedIn={setIsLoggedIn}
               >
-               <AllData Data={bookReviews}/>
+               <AllData Data={bookReviews} heading="Book Reviews"/>
+              </DashboardLayout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/home/userprofile"
+          element={
+            <PrivateRoute isLoggedIn={isLoggedIn}>
+              <DashboardLayout
+                collapsed={collapsed}
+                setCollapsed={setCollapsed}
+                setIsLoggedIn={setIsLoggedIn}
+              >
+               <UserProfile/>
               </DashboardLayout>
             </PrivateRoute>
           }
@@ -92,6 +109,22 @@ function App() {
             </PrivateRoute>
           }
         />
+
+        <Route
+          path="/userreview"
+          element={
+            <PrivateRoute isLoggedIn={isLoggedIn}>
+              <DashboardLayout
+                collapsed={collapsed}
+                setCollapsed={setCollapsed}
+                setIsLoggedIn={setIsLoggedIn}
+              >
+                <ReviewPage/>
+              </DashboardLayout>
+            </PrivateRoute>
+          }
+        />
+
       </Routes>
     </Router>
     </div>

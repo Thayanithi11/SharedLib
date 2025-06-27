@@ -18,7 +18,7 @@
             <div className="flex space-x-4">
             {items.map((item, index) => (
                 <div key={index} className="sm:w-[150px] md:w-[200px] flex flex-col items-center justify-center 
-                rounded-lg shadow hover:shadow-2xl bg-white p-2">
+                rounded-lg shadow-xl hover:shadow-2xl bg-white p-2">
                 <img
                     src={item.image}
                     alt={item.title}
