@@ -10,9 +10,9 @@ const app = express();
 app.use(express.json());
 
 
-const signup = require("./api/signup");
-const googleSignin = require("./api/google-signin");
-const checkUsername = require("./api/check-username");
+const signup = require("./authentication-routes/signup");
+const googleSignin = require("./authentication-routes/google-signin");
+const checkUsername = require("./authentication-routes/check-username");
 
 
 

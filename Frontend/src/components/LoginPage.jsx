@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { auth } from '../firebase'; // ✅ adjust this path if needed
+import { auth } from '../firebase'; 
 
 export default function LoginPage({ setIsLoggedIn }) {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const [errormsg, setErrormsg] = useState(false);
 
   const handleChange = (e) => {
@@ -27,27 +26,31 @@ export default function LoginPage({ setIsLoggedIn }) {
     setLoading(false);
   };
 
-  const handleGoogleSignIn = async () => {
-    setGoogleLoading(true);
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const idToken = await result.user.getIdToken();
+ const handleGoogleSignIn = async () => {
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
 
-      await fetch('/api/google-signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken }),
-      });
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const idToken = await result.user.getIdToken();
 
-      setIsLoggedIn(true);
-      navigate('/home');
-    } catch (err) {
+    await fetch('/api/google-signin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    });
+
+    setIsLoggedIn(true);
+    navigate('/home');
+  } catch (err) {
+    if (err.code === 'auth/popup-closed-by-user') {
+      console.log("Google Sign-In popup closed by user.");
+    } else {
       alert("Google Sign-In failed: " + err.message);
     }
-    setGoogleLoading(false);
-  };
+  }
+};
+
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-white">
@@ -69,7 +72,7 @@ export default function LoginPage({ setIsLoggedIn }) {
             Invalid email or password. Please try again.
           </div>
         )}
-        {/* 🔸 Login button */}
+        
         <button
           type="submit"
           disabled={loading}
@@ -87,25 +90,14 @@ export default function LoginPage({ setIsLoggedIn }) {
           )}
         </button>
 
-        {/* 🔸 Google Sign-In button */}
+        
         <button
           type="button"
           onClick={handleGoogleSignIn}
-          disabled={googleLoading}
-          className={`w-full py-2 mt-2 font-semibold rounded-md border transition-all duration-200 ${
-            googleLoading
-              ? 'bg-gray-200 text-gray-600 cursor-not-allowed'
-              : 'bg-white text-black border-black hover:bg-gray-100'
-          }`}
-        >
-          {googleLoading ? (
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-              Signing in...
-            </div>
-          ) : (
-            "Sign in with Google"
-          )}
+          className="w-full py-2 mt-2 font-semibold rounded-md border transition-all duration-200 
+            bg-white text-black border-black hover:bg-gray-100"
+          >
+            Sign in with Google
         </button>
 
         <div className="flex justify-center mt-2">
