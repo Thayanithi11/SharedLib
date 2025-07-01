@@ -1,2 +1,2 @@
 **/node_modules
-./Frontend/firebase.js
+./Frontend/src/firebase.js
