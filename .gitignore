@@ -5,3 +5,4 @@ firestore.rules
 firestore.indexes.json
 firebase.json
 .firebaserc
+firebase-debug.log
