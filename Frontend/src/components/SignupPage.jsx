@@ -197,7 +197,7 @@ export default function SignupPage() {
   );
 }
 
-// 🔁 Reusable input with status
+
 function Input({ label, name, type = "text", value, onChange, status = "idle" }) {
   let message = "", color = "";
   if (status === "checking") {

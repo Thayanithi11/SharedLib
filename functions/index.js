@@ -13,13 +13,14 @@ app.use(express.json());
 const signup = require("./authentication-routes/signup");
 const googleSignin = require("./authentication-routes/google-signin");
 const checkUsername = require("./authentication-routes/check-username");
-
+const checkEmail = require("./authentication-routes/check-email");
 
 
 
 app.post("/signup", signup);
 app.post("/google-signin", googleSignin);
-app.get("/api/check-username/:username", checkUsername);
+app.get("/check-username/:username", checkUsername);
+app.get("/check-email/:email", checkEmail);
 
 
 exports.api = onRequest(app);

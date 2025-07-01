@@ -1,7 +1,7 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
 
-module.exports = onRequest(async (req, res) => {
+module.exports = async (req, res) => {
 
   const email = req.query.email?.trim().toLowerCase();
 
@@ -19,4 +19,4 @@ module.exports = onRequest(async (req, res) => {
     console.error("Email check error:", err);
     return res.status(500).json({ available: false });
   }
-});
+};
