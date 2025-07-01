@@ -17,7 +17,7 @@ module.exports =async (req, res) => {
     const doc = await userRef.get();
 
     if (!doc.exists) {
-      // Auto-generate a username based on name or email
+      
       const baseUsername = email.split("@")[0].replace(/[^a-zA-Z0-9]/g, "");
       let finalUsername = baseUsername;
       let i = 0;

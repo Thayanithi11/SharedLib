@@ -14,12 +14,9 @@ const signup = require("./api/signup");
 const googleSignin = require("./api/google-signin");
 const checkUsername = require("./api/check-username");
 
-// Test route
-app.get("/ping", (req, res) => {
-  res.send("pong from ShareLib 🚀");
-});
 
-// Mount routes
+
+
 app.post("/signup", signup);
 app.post("/google-signin", googleSignin);
 app.get("/api/check-username/:username", checkUsername);

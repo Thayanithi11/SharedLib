@@ -1,3 +1,7 @@
 **/node_modules
-./Frontend/src/firebase.js
-./Frontend/.env
+Frontend/src/firebase.js
+Frontend/.env
+firestore.rules
+firestore.indexes.json
+firebase.json
+.firebaserc

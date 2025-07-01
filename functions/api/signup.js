@@ -10,7 +10,7 @@ const db = admin.firestore();
 module.exports = onRequest(async (req, res) => {
   const { email, password, username, name } = req.body;
 
-  // Trim input to prevent issues with accidental whitespace
+
   const trimmedEmail = email?.trim();
   const trimmedUsername = username?.trim();
   const trimmedName = name?.trim();
@@ -20,14 +20,12 @@ module.exports = onRequest(async (req, res) => {
   }
 
   try {
-    // 🔍 Check if username is already taken
     const usernameRef = db.collection("usernames").doc(trimmedUsername);
     const usernameDoc = await usernameRef.get();
     if (usernameDoc.exists) {
       return res.status(409).json({ error: "Username already taken" });
     }
 
-    // 👤 Create Firebase Auth user
     let userRecord;
     try {
       userRecord = await admin.auth().createUser({
@@ -44,7 +42,7 @@ module.exports = onRequest(async (req, res) => {
 
     const uid = userRecord.uid;
 
-    // 📦 Create Firestore user profile + username record atomically
+    
     const batch = db.batch();
     batch.set(usernameRef, { uid });
     batch.set(db.collection("users").doc(uid), {
