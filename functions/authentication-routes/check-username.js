@@ -2,7 +2,7 @@ const { onRequest } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
 const db = admin.firestore();
 
-module.exports = onRequest(async (req, res) => {
+module.exports = async (req, res) => {
   const { username } = req.params;
   if (!username) return res.status(400).json({ available: false });
 
@@ -13,4 +13,4 @@ module.exports = onRequest(async (req, res) => {
     console.error("Username check error:", err);
     return res.status(500).json({ available: false });
   }
-});
+};

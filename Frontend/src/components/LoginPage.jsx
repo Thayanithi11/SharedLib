@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate,useLocation} from 'react-router-dom';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { auth } from '../firebase'; 
+import { auth } from '../firebase';
 
-export default function LoginPage({ setIsLoggedIn }) {
+export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation(); 
   const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [errormsg, setErrormsg] = useState(false);
+  const successMessage = location.state?.message || "";
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -18,7 +20,6 @@ export default function LoginPage({ setIsLoggedIn }) {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, form.email, form.password);
-      setIsLoggedIn(true);
       navigate('/home');
     } catch (err) {
       setErrormsg(true);
@@ -26,31 +27,29 @@ export default function LoginPage({ setIsLoggedIn }) {
     setLoading(false);
   };
 
- const handleGoogleSignIn = async () => {
-  const provider = new GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: 'select_account' });
+  const handleGoogleSignIn = async () => {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
 
-  try {
-    const result = await signInWithPopup(auth, provider);
-    const idToken = await result.user.getIdToken();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const idToken = await result.user.getIdToken();
 
-    await fetch('/api/google-signin', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ idToken }),
-    });
+      await fetch('/api/google-signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
 
-    setIsLoggedIn(true);
-    navigate('/home');
-  } catch (err) {
-    if (err.code === 'auth/popup-closed-by-user') {
-      console.log("Google Sign-In popup closed by user.");
-    } else {
-      alert("Google Sign-In failed: " + err.message);
+      navigate('/home');
+    } catch (err) {
+      if (err.code === 'auth/popup-closed-by-user') {
+        console.log("Google Sign-In popup closed by user.");
+      } else {
+        alert("Google Sign-In failed: " + err.message);
+      }
     }
-  }
-};
-
+  };
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-white">
@@ -65,14 +64,20 @@ export default function LoginPage({ setIsLoggedIn }) {
           <img src="/SharedLibLogo.png" className="h-8 w-8" alt="Logo" />
         </div>
 
+        {successMessage && (
+          <div className="text-green-600 text-md text-center mb-2">
+            {successMessage}
+          </div>)}
+
         <Input label="Email" name="email" type="email" value={form.email} onChange={handleChange} />
         <Input label="Password" name="password" type="password" value={form.password} onChange={handleChange} />
+
         {errormsg && (
-          <div className="text-red-500 text-sm mb-2"> 
+          <div className="text-red-500 text-sm mb-2">
             Invalid email or password. Please try again.
           </div>
         )}
-        
+
         <button
           type="submit"
           disabled={loading}
@@ -90,14 +95,13 @@ export default function LoginPage({ setIsLoggedIn }) {
           )}
         </button>
 
-        
         <button
           type="button"
           onClick={handleGoogleSignIn}
           className="w-full py-2 mt-2 font-semibold rounded-md border transition-all duration-200 
             bg-white text-black border-black hover:bg-gray-100"
-          >
-            Sign in with Google
+        >
+          Sign in with Google
         </button>
 
         <div className="flex justify-center mt-2">

@@ -1,36 +1,41 @@
-import { useState } from "react";
-import { MapPin, Pencil } from "lucide-react";
+import { useState,useEffect } from "react";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { storage } from "../firebase";
+import { MapPin, Pencil, Plus, MoreVertical } from "lucide-react";
+import imageCompression from "browser-image-compression";
+import UserBooks from "./UserBooks";
 
-const books = [
-  { title: "The Secret Garden", cover: "link1" },
-  { title: "Pride and Prejudice", cover: "link2" },
-  { title: "To Kill a Mockingbird", cover: "link3" },
-  { title: "1984", cover: "link4" },
-  { title: "The Great Gatsby", cover: "link5" },
-  { title: "The Catcher in the Rye", cover: "link6" },
-];
 
-export default function UserProfile() {
-  const [activeTab, setActiveTab] = useState("Owned");
+export default function UserProfile({ isOwner, userData }) {
   const [requestedBooks, setRequestedBooks] = useState({});
   const [showEditModal, setShowEditModal] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [userData1, setUserData] = useState(userData || {});
 
   const [form, setForm] = useState({
-    name: "Sophia Bennett",
-    username: "sophiab123",
-    email: "sophia@example.com",
-    bio: "Book lover and avid reader",
-    location: "Udumalpet, TN",
-    profilePic: null,
-  });
+  name: "",
+  username: "",
+  email: "",
+  bio: "",
+  location: "",
+  profileimageURL: "",
+});
 
-  const handleRClick = (id) => {
-    setRequestedBooks((prev) => ({ ...prev, [id]: true }));
-  };
+useEffect(() => {
+  if (userData1) {
+    setForm({
+      name: userData1.name || "",
+      username: userData1.username || "",
+      email: userData1.email || "",
+      bio: userData1.bio || "",
+      location: userData1.location || "",
+      profileimageURL: userData1.profileimageURL || "",
+    });
+  }
+}, [userData1]);
 
-  const handleCclick = (id) => {
-    setRequestedBooks((prev) => ({ ...prev, [id]: false }));
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -38,188 +43,207 @@ export default function UserProfile() {
   };
 
   const handleFileChange = (e) => {
-    setForm((f) => ({ ...f, profilePic: e.target.files[0] }));
-  };
+  setErrorMessage(""); // clear previous errors
+  setSuccessMessage(""); // clear previous success
+  setForm((f) => ({ ...f, profileimageURL: e.target.files[0] }));
+};
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    Object.entries(form).forEach(([key, value]) => {
-      formData.append(key, value);
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsSaving(true);
+  setErrorMessage(""); // reset error message
+  setSuccessMessage(""); // reset success message
+
+  let imageURL = form.profileimageURL;
+
+  try {
+    if (form.profileimageURL instanceof File) {
+      const options = {
+        maxSizeMB: 0.5,
+        maxWidthOrHeight: 800,
+        useWebWorker: true,
+      };
+      const compressedFile = await imageCompression(form.profileimageURL, options);
+      const storageRef = ref(storage, `UserProfilePics/${form.username}`);
+      const uploadTask = uploadBytesResumable(storageRef, compressedFile);
+
+      await new Promise((resolve, reject) => {
+        uploadTask.on(
+          "state_changed",
+          null,
+          (error) => reject(error),
+          async () => {
+            imageURL = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve();
+          }
+        );
+      });
+    }
+
+    const payload = {
+      name: form?.name || "",
+      username: form?.username || "",
+      email: form?.email || "",
+      bio: form?.bio || "",
+      location: form?.location || "",
+      profileimageURL: imageURL,
+    };
+
+    const response = await fetch(`http://localhost:5001/sharedlib-bc490/us-central1/api/updateprofile/${form.username}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
 
-    try {
-      // Replace with actual backend URL
-      await fetch("/api/update-profile", {
-        method: "POST",
-        body: formData,
-      });
-      alert("Profile updated!");
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "Unknown error");
+    setUserData((prev) => ({ ...prev, ...payload }));
+
+    setSuccessMessage("Profile updated ✅");
+    setTimeout(() => {
+      setSuccessMessage("");
       setShowEditModal(false);
-    } catch (err) {
-      alert("Failed to update profile.");
-    }
+    }, 1000);
+  } catch (err) {
+    setErrorMessage("Profile update failed please try again.");
+  } finally {
+    setIsSaving(false);
+  }
+};
+
+
+  const handleRequestClick = (bookId) => {
+    setRequestedBooks((prev) => ({ ...prev, [bookId]: true }));
+  };
+
+  const handleCancelClick = (bookId) => {
+    setRequestedBooks((prev) => ({ ...prev, [bookId]: false }));
   };
 
   return (
     <div className="flex flex-col items-center py-5">
-      {/* Profile Photo with Edit Icon */}
+      {/* Profile Picture */}
       <div className="relative">
         <img
-          src="/useravatar.png"
+          src={
+            form.profileimageURL instanceof File
+              ? URL.createObjectURL(form.profileimageURL)
+              : userData1.profileimageURL || "/useravatar.png"
+          }
           alt="Profile"
-          className="rounded-full w-28 h-28 mb-4"
+          className="rounded-full w-28 h-28 mb-2 object-cover"
         />
-        <button
-          onClick={() => setShowEditModal(true)}
-          className="absolute bottom-2 right-2 bg-white p-1 rounded-full shadow hover:bg-gray-200"
-        >
-          <Pencil className="w-4 h-4 text-gray-600" />
-        </button>
+        {isOwner && (
+          <button onClick={() => setShowEditModal(true)} className="absolute bottom-2 right-2 bg-white p-1 rounded-full shadow hover:bg-gray-200">
+            <Pencil className="w-4 h-4 text-gray-600" />
+          </button>
+        )}
       </div>
 
-      {/* Name & Info */}
-      <h2 className="text-2xl font-semibold">{form.name}</h2>
-      <p className="text-sm text-gray-600">{form.bio}</p>
+      {/* Name, Username, Bio */}
+      <h2 className="text-2xl font-semibold">{userData1.name}</h2>
+      <p className="text-gray-500 text-sm">@{userData1.username}</p>
+      <p className="text-sm text-gray-700">{userData1.bio}</p>
       <p className="text-sm text-gray-500 flex items-center gap-1">
-        <MapPin className="w-4 h-5" />
-        {form.location}
+        <MapPin className="w-4 h-4" /> {userData1.location}
       </p>
 
-      {/* Tabs */}
-      <div className="flex justify-center mt-10 space-x-6 border-b w-full max-w-md">
-        {["Owned", "Reading", "Read", "Articles"].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`pb-2 ${
-              activeTab === tab
-                ? "border-b-2 border-indigo-600 text-indigo-700"
-                : "text-gray-500"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
+      {/* Followers / Following */}
+      <div className="flex gap-4 mt-2">
+        <span className="text-sm text-black">{userData1.followers.length} Followers</span>
+        <span className="text-sm text-black">{userData1.following.length} Following</span>
       </div>
 
-      {/* Books */}
-      {(activeTab === "Owned" || activeTab === "Reading" || activeTab === "Read" || activeTab === "Articles") && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mt-10">
-          {books.map((book, idx) => (
-            <div key={idx} className="flex flex-col items-center">
-              <img
-                src="/book1.png"
-                className="w-48 h-56 bg-gray-200 rounded shadow-sm mb-2"
-              />
-              <p className="text-sm text-center mb-2">{book.title}</p>
-              {activeTab === "Owned" && (
-                <div className="flex justify-center items-center gap-1">
-                  {!requestedBooks[book.title] && (
-                    <button
-                      onClick={() => handleRClick(book.title)}
-                      className="px-2 py-1 ml-8 text-sm bg-indigo-100 text-blue-700 rounded-xl hover:bg-indigo-400 transition"
-                    >
-                      Request to borrow
-                    </button>
-                  )}
-                  {requestedBooks[book.title] && (
-                    <button
-                      className="text-red-800 bg-red-200 rounded-md px-1 py-1 ml-8 text-sm font-medium hover:border hover:bg-red-300"
-                      onClick={() => handleCclick(book.title)}
-                    >
-                      Cancel request
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+     <UserBooks isOwner={isOwner} userData={userData}/>
 
-      {/* Modal */}
+
+      {/* Edit Modal */}
       {showEditModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <form
-            onSubmit={handleSubmit}
-            className="bg-white p-6 rounded-xl w-80 shadow-lg"
-          >
-            <h2 className="text-xl font-semibold mb-4 text-center">
-              Edit Profile
-            </h2>
+          <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl w-80 shadow-lg" encType="multipart/form-data">
+            <h2 className="text-xl font-semibold mb-4 text-center">Edit Profile</h2>
+
+            {successMessage && (
+              <div className="text-green-600 text-center text-sm mb-2">
+                {successMessage}
+              </div>
+            )}
+            {errorMessage && (
+           <div className="text-red-600 text-center text-sm mb-2">{errorMessage}</div>
+          )}
 
             <div className="mb-2">
               <label className="block text-sm">Name</label>
-              <input
-                name="name"
-                value={form.name}
-                onChange={handleInputChange}
-                className="w-full px-3 py-1 border rounded"
-              />
+              <input name="name" value={form.name} onChange={handleInputChange} className="w-full px-3 py-1 border rounded" />
             </div>
 
             <div className="mb-2">
               <label className="block text-sm">Username</label>
-              <input
-                value={form.username}
-                disabled
-                className="w-full px-3 py-1 border rounded bg-gray-100 text-gray-600"
-              />
+              <input value={form.username} disabled className="w-full px-3 py-1 border rounded bg-gray-100 text-gray-600" />
             </div>
 
             <div className="mb-2">
               <label className="block text-sm">Email</label>
-              <input
-                value={form.email}
-                disabled
-                className="w-full px-3 py-1 border rounded bg-gray-100 text-gray-600"
-              />
+              <input value={form.email} disabled className="w-full px-3 py-1 border rounded bg-gray-100 text-gray-600" />
             </div>
 
             <div className="mb-2">
               <label className="block text-sm">Bio</label>
-              <textarea
-                name="bio"
-                value={form.bio}
-                onChange={handleInputChange}
-                className="w-full px-3 py-1 border rounded"
-              />
+              <textarea name="bio" value={form.bio} onChange={handleInputChange} className="w-full px-3 py-1 border rounded" />
             </div>
 
             <div className="mb-2">
               <label className="block text-sm">Location</label>
-              <input
-                name="location"
-                value={form.location}
-                onChange={handleInputChange}
-                className="w-full px-3 py-1 border rounded"
-              />
+              <input name="location" value={form.location} onChange={handleInputChange} className="w-full px-3 py-1 border rounded" />
             </div>
 
             <div className="mb-3">
               <label className="block text-sm">Profile Photo</label>
               <input
+                id="profilePhoto"
+                name="profileimageURL"
                 type="file"
                 accept="image/*"
                 onChange={handleFileChange}
-                className="w-full"
+                className="w-full file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
               />
             </div>
 
             <div className="flex justify-between mt-4">
-              <button
-                type="button"
-                onClick={() => setShowEditModal(false)}
-                className="px-4 py-1 rounded bg-gray-200 hover:bg-gray-300"
-              >
-                Cancel
-              </button>
+              <button type="button" onClick={() => setShowEditModal(false)} className="px-4 py-1 rounded bg-gray-200 hover:bg-gray-300">Cancel</button>
               <button
                 type="submit"
-                className="px-4 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700"
+                disabled={isSaving}
+                className={`px-4 py-1 rounded text-white ${
+                  isSaving
+                    ? "bg-indigo-400 cursor-not-allowed"
+                    : "bg-indigo-600 hover:bg-indigo-700"
+                } flex items-center gap-2`}
               >
-                Save
+                {isSaving && (
+                  <svg
+                    className="animate-spin h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 000 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+                    ></path>
+                  </svg>
+                )}
+                {isSaving ? "Saving..." : "Save"}
               </button>
             </div>
           </form>

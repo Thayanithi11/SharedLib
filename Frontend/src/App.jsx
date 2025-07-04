@@ -9,7 +9,7 @@ import DashboardLayout from './components/DashboardLayout';
 import Feed from './components/Feed';
 import ChatsPage from './components/ChatsPage';
 import AllData from './components/AllData';
-import UserProfile from './components/UserProfile';
+import UserProfileWrapper from './components/UserProfileWrapper';
 import ReviewPage from './components/ReviewPage';
 import LandingPage from './components/LandingPage';
 
@@ -65,17 +65,17 @@ function App() {
             </PrivateRoute>
           }
         />
+           <Route
+             path="/home/userprofile/:username"
+             element={
+               <PrivateRoute>
+                 <DashboardLayout collapsed={collapsed} setCollapsed={setCollapsed}>
+                   <UserProfileWrapper />
+                 </DashboardLayout>
+               </PrivateRoute>
+             }
+           />
 
-        <Route
-          path="/home/userprofile"
-          element={
-            <PrivateRoute>
-              <DashboardLayout collapsed={collapsed} setCollapsed={setCollapsed}>
-                <UserProfile />
-              </DashboardLayout>
-            </PrivateRoute>
-          }
-        />
 
         <Route
           path="/chats"

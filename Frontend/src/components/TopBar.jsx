@@ -74,7 +74,8 @@ export default function TopBar() {
         </div>
 
        
-        <img src="SharedLibLogo.png" className="w-8 h-8 rounded-full" />
+        <img src="https://firebasestorage.googleapis.com/v0/b/sharedlib-bc490.firebasestorage.app/o/SharedLibLogo.png?alt=media&token=8964a8d3-60fc-4ffd-b9b3-f7c2439c1cc5"
+         className="w-10 h-10 rounded-full" />
       </div>
     </div>
   );

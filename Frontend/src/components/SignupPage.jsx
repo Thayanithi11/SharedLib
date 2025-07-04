@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 
 export default function SignupPage() {
   const navigate = useNavigate();
-  const [signedUp, setSignedUp] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [usernameStatus, setUsernameStatus] = useState("idle"); // idle | checking | taken | available
@@ -52,7 +51,7 @@ export default function SignupPage() {
 
       setEmailStatus("checking");
       try {
-        const res = await fetch(`/api/check-email/${encodeURIComponent(email)}`);
+        const res = await fetch(`/api/check-email?email=${encodeURIComponent(email)}`);
         const { available } = await res.json();
         setEmailStatus(available ? "available" : "taken");
       } catch (err) {
@@ -87,21 +86,20 @@ export default function SignupPage() {
       });
 
       if (res.ok) {
-  setSignedUp(true);
-  setTimeout(() => navigate('/home'), 2000);
-} else {
-  const errText = await res.text();
-  if (errText.includes("Username already taken")) {
-    setUsernameStatus("taken");
-    setErrorMsg("Username already taken.");
-  } else if (errText.includes("Email already exists")) {  // <-- updated check
-    setEmailStatus("taken");
-    setErrorMsg("An account with this email already exists.");
-  } else {
-    setErrorMsg("Signup failed. Please try again.");
-  }
-}}
- catch (error) {
+        navigate('/login', { state: { message: "Signup successful! Please log in." } });
+      } else {
+        const errText = await res.text();
+        if (errText.includes("Username already taken")) {
+          setUsernameStatus("taken");
+          setErrorMsg("Username already taken.");
+        } else if (errText.includes("Email already exists")) {
+          setEmailStatus("taken");
+          setErrorMsg("An account with this email already exists.");
+        } else {
+          setErrorMsg("Signup failed. Please try again.");
+        }
+      }
+    } catch (error) {
       console.error("Signup error:", error);
       setErrorMsg("Something went wrong.");
     }
@@ -112,17 +110,6 @@ export default function SignupPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
     setErrorMsg("");
   };
-
-  if (signedUp) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-white">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-black mb-2">Signup Successful!</h1>
-          <p className="text-gray-600">Redirecting to Landing page</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-white">
@@ -177,7 +164,7 @@ export default function SignupPage() {
           {loading ? (
             <div className="flex items-center justify-center gap-2">
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              Signing Up...
+              Signing Up
             </div>
           ) : (
             "Sign Up"
